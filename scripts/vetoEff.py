@@ -15,9 +15,11 @@ edges=[0., 15., 45., 87., 125., 162., 200.]
 xbin = numpy.array(edges)
 
 
-#mH      ggH0    ggH1in0 ggH1in1 ggH2in1 ggH2in2
-#125     1.16    0.92    1.28    0.97    1.12
-binningNuisance = {'ggH0': 1.16-1, 'ggH1in0':0.92-1, 'ggH1in1':1.28-1, 'ggH2in1':0.97-1, 'ggH2in2':1.12-1}
+#mH   f_0   f_1   f_2   k_1   k_2
+#125  0.64  0.25  0.11  1.24  1.09
+
+
+binningNuisance = {'k_0': exp(0.15), 'k_1': 1.24, 'k_2':1.09}
 
 file = TFile("/data/lenzip/differential/tree_noskim/nominals/latino_1125_ggToH125toWWTo2LAndTau2Nu.root");
 
@@ -73,12 +75,17 @@ for bin in range(1,len(edges)):
   effic2 = Double(0)
   eff_thisbin.GetPoint(0, x, effic0) 
   eff_thisbin.GetPoint(1, x, effic1) 
-  eff_thisbin.GetPoint(2, x, effic2) 
+  eff_thisbin.GetPoint(2, x, effic2)
+  ggH0 = binningNuisance['k_0']**(1./frac0) if frac0 > 0.02 else 1.
+  ggH1in0 = binningNuisance['k_1']**(-(frac2+frac1)/frac0) if frac0 > 0.02 else 1.
+  ggH1in1 = binningNuisance['k_1']**((frac2+frac1)/frac1) if frac1 != 0 else 1.
+  ggH2in1 = binningNuisance['k_2']**(-frac2/frac1)  if frac1 != 0 else 1.
+  ggH2in2 = binningNuisance['k_2'] - 1
   #print "bin", bin, " selection ", thisbin_sel, "fractions", frac0, frac1, frac2, " efficiencies", effic0, effic1, effic2 
-  print "bin", bin, "fractions", frac0, frac1, frac2, " efficiencies", effic0, effic1, effic2 
-  QCDscale_ggH    = (binningNuisance['ggH0']*frac0*effic0+binningNuisance['ggH1in0']*frac1*effic1) + 1.
-  QCDscale_ggH1in = (binningNuisance['ggH1in1']*frac1*effic1 + binningNuisance['ggH2in1']*frac2*effic2) + 1.
-  QCDscale_ggH2in = (binningNuisance['ggH2in2']*frac2*effic2) + 1
+  print "bin", bin, "fractions", frac0, frac1, frac2, " efficiencies", effic0, effic1, effic2, "  ggH0,ggH1in0,ggH1in1,ggH2in1,ggH2in2",ggH0,ggH1in0,ggH1in1,ggH2in1,ggH2in2   
+  QCDscale_ggH    = (ggH0*frac0*effic0+ggH1in0*frac1*effic1)/(ggH0*frac0*effic0+ggH1in0*frac1*effic0) if frac0 > 0.02 else 1.
+  QCDscale_ggH1in = (ggH1in1*frac1*effic1 + ggH2in1*frac2*effic2)/(ggH1in1*frac1*effic1 + ggH2in1*frac2*effic1) if frac1 > 0.02 else 1.
+  QCDscale_ggH2in = 1 
   infile += "Bin"+str(bin-1)+"\t%.3f\t%.3f\t%.3f\n" % (QCDscale_ggH, QCDscale_ggH1in, QCDscale_ggH2in)
   #print "QCDscale_ggH, QCDscale_ggH1in, QCDscale_ggH2in", QCDscale_ggH, QCDscale_ggH1in, QCDscale_ggH2in
   out.cd()
