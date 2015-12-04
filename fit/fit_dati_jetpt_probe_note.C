@@ -64,10 +64,11 @@ int fit_data_jetptprobe() {
   
   // Read in the data.  
 
-  TString dir = "/home/lviliani/Documenti/TagAndProbe/looseTag_volta_buona_davvero_davvero/";
-  TString mll_cut = "mth>40";
+  TString dir = "/afs/cern.ch/work/l/lviliani/TagAndProbeRunII/CMSSW_7_5_4/src/TagAndProbe/scripts/";
+  TString mll_cut = "mth>0";
 
-  TFile* filein = new TFile("tagAndProbe_met.root"); 
+  //TFile* filein = new TFile(dir+"tandpOF_loose.root"); 
+  TFile* filein = new TFile(dir+"tandp_mediumT_looseP.root");
   TFile* fileout = new TFile("data_jetptprobe.root", "RECREATE");
   /*
   // Read in the ttbar MC
@@ -107,8 +108,8 @@ int fit_data_jetptprobe() {
 
   RooRealVar efficiency_s("efficiency_s", "efficiency_s", 0, 1);
   RooRealVar efficiency_b("efficiency_b", "efficiency_b", 0, 1); 
-  RooRealVar s("s","signal yield",0,60000);
-  RooRealVar b("b","background yield",0,30000);
+  RooRealVar s("s","signal yield",0,6000);
+  RooRealVar b("b","background yield",0,3000);
   
   RooFormulaVar s_pass("s_pass","s*efficiency_s", RooArgList(s,efficiency_s));
   RooFormulaVar b_pass("b_pass","b*efficiency_b", RooArgList(b,efficiency_b));

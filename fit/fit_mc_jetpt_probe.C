@@ -64,10 +64,10 @@ int fit_mc_jetptprobe() {
   
   // Read in the data.  
 
-  TString dir = "/home/lviliani/Documenti/TagAndProbe/looseTag_volta_buona_davvero_davvero/";
+  TString dir = "/afs/cern.ch/work/l/lviliani/TagAndProbeRunII/CMSSW_7_5_4/src/TagAndProbe/scripts/";
   TString mll_cut = "mth>40";
 
-  TFile* filein = new TFile("tagAndProbe_met.root");  
+  TFile* filein = new TFile(dir+"tandpOF.root");  
   /*
   // Read in the ttbar MC
   TFile* ttbarFile_pp = new TFile(dir+"ttbar_pp.root");

@@ -65,10 +65,11 @@ int fit_mc_jetptprobe(int ntoys=0) {
   
   // Read in the data.  
 
-  TString dir = "/home/lviliani/Documenti/TagAndProbe/looseTag_volta_buona_davvero_davvero/";
-  TString mll_cut = "mth>40";
+  TString dir = "/afs/cern.ch/work/l/lviliani/TagAndProbeRunII/CMSSW_7_5_4/src/TagAndProbe/scripts/";
+  TString mll_cut = "mth>0";
 
-  TFile* filein = new TFile("tagAndProbe_met.root"); 
+  //TFile* filein = new TFile(dir+"tandpOF_loose.root"); 
+  TFile* filein = new TFile(dir+"tandp_mediumT_looseP.root");
   TFile* fileout = new TFile("mc_jetptprobe.root", "RECREATE");
   /*
   // Read in the ttbar MC

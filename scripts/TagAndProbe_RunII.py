@@ -11,9 +11,8 @@ tight = 0.97
 
 LumiW = 1.27
 
+outFile = TFile("tandp_mediumT_looseP.root","recreate")
 
-#outFile = TFile("TPtree_LooseTag_sig_bkg.root","recreate")
-outFile = TFile("tandp.root","recreate")
 treeData = TTree("Data","Tree with data_pp and data_fp")
 treeTTbar = TTree("TTbar","Tree with ttbar_pp and ttbar_fp")
 treeOtherBkg = TTree("OtherBkg","Tree with otherbkg_pp and otherbkg_fp")
@@ -45,12 +44,12 @@ for key in trees.keys():
   trees[key].Branch('mth', mth, 'mth/D')
 
 
-Dir_mc = "/afs/cern.ch/user/l/lorusso/work/public/skim/mc/"
-Dir_data = "/afs/cern.ch/user/l/lorusso/work/public/skim/data/"
+Dir_mc = "root://eoscms//store/user/lviliani/latino_skim/mc/"
+Dir_data = "root://eoscms//store/user/lviliani/latino_skim/data/"
 
 # open the file
 Top = TChain("latino") 
-Top.Add(Dir_mc+"latino_TT_skim.root")
+Top.Add(Dir_mc+"latino_TT.root")
 
 Data = TChain("latino")
 Data.Add(Dir_data+"5535pb/latino_Run2015D_05Oct2015_DoubleEG_0.root")
@@ -86,6 +85,7 @@ Data.Add(Dir_data+"715pb/latino_Run2015D_PromptReco_SingleMuon_3.root")
 
 
 Bkg = TChain("latino")
+Bkg.Add(Dir_mc+"latino_Wg.root");
 Bkg.Add(Dir_mc+"latino_ST_s-channel.root")
 Bkg.Add(Dir_mc+"latino_ST_tW_antitop.root")
 Bkg.Add(Dir_mc+"latino_ST_tW_top.root")
@@ -98,7 +98,7 @@ Bkg.Add(Dir_mc+"latino_WZZ.root")
 Bkg.Add(Dir_mc+"latino_ZZ.root")
 Bkg.Add(Dir_mc+"latino_ZZZ.root")
 Bkg.Add(Dir_mc+"latino_ZZTo4L.root")
-Bkg.Add(Dir_mc+"latino_GluGluHToWWTo2L2Nu_M125_skim.root")
+#Bkg.Add(Dir_mc+"latino_GluGluHToWWTo2L2Nu_M125_skim.root")
 
 chains=[(Data, "Data") , (Top, "Top"), (Bkg, "Bkg")]
 
@@ -127,6 +127,7 @@ for chain in chains:
   chain[0].SetBranchStatus("triggW",1)
   chain[0].SetBranchStatus("ppfMet",1)
   chain[0].SetBranchStatus("std_vector_jet_PartonFlavour*",1)
+  chain[0].SetBranchStatus("std_vector_jet_HadronFlavour*",1)
   chain[0].SetBranchStatus("std_vector_jetGen*",1)
 
 def deltaPhi(jetphi, bphi):
@@ -153,8 +154,8 @@ def match(jeteta, jetphi, beta, bphi):
 
 for chain in chains:
   iEvt=0
-  EvtMax=100000
-  step=1000
+  EvtMax=100000000
+  step=10000
   tag=0
   probe=0
   pass_probe=0
@@ -167,19 +168,20 @@ for chain in chains:
   #  print "Event%d" % iEvt
     
    
-    if not ( abs(e.std_vector_lepton_flavour[0])!=abs(e.std_vector_lepton_flavour[1]) and  e.mll>12 and e.std_vector_lepton_pt[2]<0 and e.std_vector_lepton_pt[0]>20 and e.std_vector_lepton_pt[1]>10 and ( (e.std_vector_lepton_ch[0]<0 and e.std_vector_lepton_ch[1]>0) or ( e.std_vector_lepton_ch[0]>0 and e.std_vector_lepton_ch[1]<0 ) ) and e.ppfMet>20. ) : continue
+    #if not ( (e.std_vector_lepton_flavour[0] * e.std_vector_lepton_flavour[1] == -11*13) and  e.mll>12 and e.std_vector_lepton_pt[2]<0 and e.std_vector_lepton_pt[0]>20 and e.std_vector_lepton_pt[1]>10 and ( (e.std_vector_lepton_ch[0]<0 and e.std_vector_lepton_ch[1]>0) or ( e.std_vector_lepton_ch[0]>0 and e.std_vector_lepton_ch[1]<0 ) ) and e.ppfMet>20. ) : continue
+    if not ( e.mll>12 and e.std_vector_lepton_pt[0]>20 and e.std_vector_lepton_pt[1]>10 and e.ppfMet>20. ) : continue
 
     if ( e.std_vector_jet_csvv2ivf[2]>medium or e.std_vector_jet_csvv2ivf[3]>medium ) : continue
     if chain[1] == "Top":
-      weight[0] = e.baseW*e.puW*e.effW*e.triggW*LumiW
+      weight[0] = e.baseW*LumiW
     elif chain[1] == "Bkg":
-      weight[0] = e.puW*e.baseW*e.effW*e.triggW*LumiW
+      weight[0] = e.baseW*LumiW
     elif chain[1] == "Data":
-      weight[0] = 1.
+      weight[0] = e.trigger 
    
     isb[0] = 0
     
-    if ( e.std_vector_jet_pt[0]>30 and e.std_vector_jet_csvv2ivf[0]>tight ) :
+    if ( e.std_vector_jet_pt[0]>30 and e.std_vector_jet_csvv2ivf[0]>medium ) :
       tag += weight[0]
        
       if ( e.std_vector_jet_pt[1]>30 ) :
@@ -187,8 +189,9 @@ for chain in chains:
     
         if chain[1] == "Top":
           #if  match(e.jeteta2,e.jetphi2,e.jetGenPartonBeta1,e.jetGenPartonBphi1) or match(e.jeteta2,e.jetphi2,e.jetGenPartonBeta2,e.jetGenPartonBphi2)  : 
-          if abs(e.std_vector_jet_PartonFlavour[1])==5:
+          if abs(e.std_vector_jet_PartonFlavour[1])==5 or abs(e.std_vector_jet_HadronFlavour[1])==5:
             isb[0] = 1   
+          elif (abs(e.std_vector_jet_HadronFlavour[1])==0 and abs(e.std_vector_jet_PartonFlavour[1])==0): continue
 
         jetptsum[0] = e.std_vector_jet_pt[0] +  e.std_vector_jet_pt[1]
         jetdphi[0] = deltaPhi(e.std_vector_jet_eta[0], e.std_vector_jet_eta[1])
@@ -198,7 +201,7 @@ for chain in chains:
         btagtag[0] = e.std_vector_jet_csvv2ivf[0]
         mll[0]=e.mll
         mth[0]=e.mth
-        if ( e.std_vector_jet_csvv2ivf[1]>medium ):
+        if ( e.std_vector_jet_csvv2ivf[1]>loose ):
           pass_probe += weight[0]
           passfail[0] = 1
         else:
@@ -210,7 +213,7 @@ for chain in chains:
 
     isb[0]=0
 
-    if ( e.std_vector_jet_pt[1]>30 and e.std_vector_jet_csvv2ivf[1]>tight ) :
+    if ( e.std_vector_jet_pt[1]>30 and e.std_vector_jet_csvv2ivf[1]>medium ) :
       tag += weight[0]
 
       if ( e.std_vector_jet_pt[0]>30 ) :
@@ -218,9 +221,10 @@ for chain in chains:
 
         if chain[1] == "Top": 
           #if match(e.jeteta1,e.jetphi1,e.jetGenPartonBeta1,e.jetGenPartonBphi1) or match(e.jeteta1,e.jetphi1,e.jetGenPartonBeta2,e.jetGenPartonBphi2)  :
-          if abs(e.std_vector_jet_PartonFlavour[0])==5:
+          if abs(e.std_vector_jet_PartonFlavour[0])==5 or abs(e.std_vector_jet_HadronFlavour[0])==5:
            isb[0] = 1
-        
+          elif (abs(e.std_vector_jet_HadronFlavour[0])==0 and abs(e.std_vector_jet_PartonFlavour[0])==0): continue
+ 
         jetptsum[0] = e.std_vector_jet_pt[0] +  e.std_vector_jet_pt[1]
         jetdphi[0] = deltaPhi(e.std_vector_jet_eta[0], e.std_vector_jet_eta[1])
         jetptprobe[0] = e.std_vector_jet_pt[0]
@@ -229,7 +233,7 @@ for chain in chains:
         btagtag[0] = e.std_vector_jet_csvv2ivf[1]
         mll[0]=e.mll
         mth[0]=e.mth
-        if ( e.std_vector_jet_csvv2ivf[0]>medium ):
+        if ( e.std_vector_jet_csvv2ivf[0]>loose ):
           pass_probe += weight[0]
           passfail[0] = 1
 
