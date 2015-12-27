@@ -12,7 +12,7 @@ tight = 0.97
 
 LumiW = 1.27
 
-outFile = TFile("tandp_mediumT_looseP_7.root","recreate")
+outFile = TFile("tandp_mediumT_looseP_8.root","recreate")
 
 treeData = TTree("Data","Tree with data_pp and data_fp")
 treeTTbar = TTree("TTbar","Tree with ttbar_pp and ttbar_fp")
@@ -27,6 +27,9 @@ passfail  = n.zeros(1, dtype=int)
 weight = n.zeros(1, dtype=float)
 weightUp = n.zeros(1, dtype=float)
 weightDown = n.zeros(1, dtype=float)
+weightST = n.zeros(1, dtype=float)
+weightSTUp = n.zeros(1, dtype=float)
+weightSTDown = n.zeros(1, dtype=float)
 btagprobe = n.zeros(1, dtype=float)
 btagtag = n.zeros(1, dtype=float)
 mll = n.zeros(1, dtype=float)
@@ -35,7 +38,7 @@ isb = n.zeros(1, dtype=float)
 ptll = n.zeros(1, dtype=float)
 ht = n.zeros(1, dtype=float)
 ht2 = n.zeros(1, dtype=float)
-
+dataset = n.zeros(1, dtype=float)
 
 for key in trees.keys():
   trees[key].Branch('isb', isb, 'isb/D')
@@ -47,6 +50,9 @@ for key in trees.keys():
   trees[key].Branch('weight', weight, 'weight/D')
   trees[key].Branch('weightUp', weightUp, 'weightUp/D')
   trees[key].Branch('weightDown', weightDown, 'weightDown/D')
+  trees[key].Branch('weightST', weightST, 'weightST/D')
+  trees[key].Branch('weightSTUp', weightSTUp, 'weightSTUp/D')
+  trees[key].Branch('weightSTDown', weightSTDown, 'weightSTDown/D')
   trees[key].Branch('btagprobe', btagprobe, 'btagprobe/D')
   trees[key].Branch('btagtag', btagtag, 'btagtad/D')
   trees[key].Branch('mll', mll, 'mll/D')
@@ -54,6 +60,7 @@ for key in trees.keys():
   trees[key].Branch('ptll', ptll, 'ptll/D')
   trees[key].Branch('ht', ht, 'ht/D')
   trees[key].Branch('ht2', ht2, 'ht2/D')
+  trees[key].Branch('dataset', dataset, 'dataset/D')
 
 
 Dir_mc = "../eos/cms/store/caf/user/lenzip/ww2016/21Oct_25ns_MC/mcwghtcount__MC__l2sel__bPogSF__hadd/"
@@ -182,13 +189,24 @@ for chain in chains:
       weight[0] = e.baseW*e.puW*e.bPogSF2Jet*LumiW
       weightUp[0] = e.baseW*e.puW*e.bPogSF2JetUp*LumiW
       weightDown[0] = e.baseW*e.puW*e.bPogSF2JetDown*LumiW
+      weightST[0]=weight[0]
+      weightSTUp[0]=weight[0]
+      weightSTDown[0]=weight[0]
     elif chain[1] == "Bkg":
       weight[0] = e.baseW*e.puW*e.bPogSF2Jet*LumiW
       weightUp[0] = e.baseW*e.puW*e.bPogSF2JetUp*LumiW
       weightDown[0] = e.baseW*e.puW*e.bPogSF2JetDown*LumiW
+      weightST[0]=weight[0]
+      weightSTUp[0]=weight[0]
+      weightSTDown[0]=weight[0]
+      #single top variations
+      if ( e.dataset >=12 and e.dataset <=16 )  or e.dataset == 22:
+        weightSTUp[0]=weight[0]*1.2
+        weightSTDown[0]=weight[0]*0.8
     elif chain[1] == "Data":
       weight[0] = e.trigger 
    
+    dataset[0] =  e.dataset    
     isb[0] = 0
     ht[0] = 0.
     ht2[0] = 0.
@@ -197,7 +215,6 @@ for chain in chains:
         ht[0] += e.std_vector_jet_pt[i]
         if (i < 2):
           ht2[0] += e.std_vector_jet_pt[i]
-        
       
     #if ( e.std_vector_jet_pt[0]>30 and e.std_vector_jet_csvv2ivf[0]>medium ) :
     if ( e.std_vector_jet_pt[0]>15 and e.std_vector_jet_csvv2ivf[0]>veryloose ) :

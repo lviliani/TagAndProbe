@@ -70,8 +70,8 @@ int fit_mc_jetptprobe(int ntoys=0) {
   TString mll_cut = "mll>0";
 
   //TFile* filein = new TFile(dir+"tandpOF_loose.root"); 
-  TFile* fileinData = new TFile(dir+"tandp_mediumT_looseP_7.root");
-  TFile* fileinMC = new TFile(dir+"tandp_mediumT_looseP_4.root");
+  TFile* fileinData = new TFile(dir+"tandp_mediumT_looseP_8.root");
+  TFile* fileinMC = new TFile(dir+"tandp_mediumT_looseP_8.root");
   TFile* fileout = new TFile("mc_jetptprobe.root", "RECREATE");
   /*
   // Read in the ttbar MC
@@ -108,6 +108,8 @@ int fit_mc_jetptprobe(int ntoys=0) {
   RooBinning binning(8, binning_a);
   jetptprobe.setBinning(binning) ;
   RooRealVar weight("weight", "weight", -1000, 1000);  
+  RooRealVar weightSTUp("weightSTUp", "weightSTUp", -1000, 1000);  
+  RooRealVar weightSTDown("weightSTDown", "weightSTDown", -1000, 1000);  
   RooRealVar mll("mll", "mll", 0, 500);
   RooRealVar mth("mth", "mth", 0, 500);
   
@@ -125,21 +127,21 @@ int fit_mc_jetptprobe(int ntoys=0) {
 
   // Import TTbar and Bkg datasets
   //signal: the probe is a b
-  RooDataSet* ttbar_pp = new RooDataSet("ttbar_pp", "ttbar_pp", RooArgSet(jetptprobe, weight, mll, passprobe_cat, isb), Import(*tree_ttbar), WeightVar(weight), Cut(mll_cut+" && passfail==1 && isb==1"));
-  RooDataSet* ttbar_fp = new RooDataSet("ttbar_fp", "ttbar_fp", RooArgSet(jetptprobe, weight, mll, passprobe_cat, isb), Import(*tree_ttbar), WeightVar(weight), Cut(mll_cut+" && passfail==0 && isb==1"));
+  RooDataSet* ttbar_pp = new RooDataSet("ttbar_pp", "ttbar_pp", RooArgSet(jetptprobe, weight, weightSTUp, weightSTDown, mll, passprobe_cat, isb), Import(*tree_ttbar), WeightVar(weight), Cut(mll_cut+" && passfail==1 && isb==1"));
+  RooDataSet* ttbar_fp = new RooDataSet("ttbar_fp", "ttbar_fp", RooArgSet(jetptprobe, weight, weightSTUp, weightSTDown, mll, passprobe_cat, isb), Import(*tree_ttbar), WeightVar(weight), Cut(mll_cut+" && passfail==0 && isb==1"));
 
-  RooDataSet* ttbar_pp2 = new RooDataSet("ttbar_pp2", "ttbar_pp", RooArgSet(jetptprobe, weight, mll, passprobe_cat, isb), Import(*tree_bkg), WeightVar(weight), Cut(mll_cut+" && passfail==1 && isb==1"));
-  RooDataSet* ttbar_fp2 = new RooDataSet("ttbar_fp2", "ttbar_fp", RooArgSet(jetptprobe, weight, mll, passprobe_cat, isb), Import(*tree_bkg), WeightVar(weight), Cut(mll_cut+" && passfail==0 && isb==1"));
+  RooDataSet* ttbar_pp2 = new RooDataSet("ttbar_pp2", "ttbar_pp", RooArgSet(jetptprobe, weight, weightSTUp, weightSTDown, mll, passprobe_cat, isb), Import(*tree_bkg), WeightVar(weight), Cut(mll_cut+" && passfail==1 && isb==1"));
+  RooDataSet* ttbar_fp2 = new RooDataSet("ttbar_fp2", "ttbar_fp", RooArgSet(jetptprobe, weight, weightSTUp, weightSTDown, mll, passprobe_cat, isb), Import(*tree_bkg), WeightVar(weight), Cut(mll_cut+" && passfail==0 && isb==1"));
 
   ttbar_pp->append(*ttbar_pp2);
   ttbar_fp->append(*ttbar_fp2);
   
   //background: the probe is not a b
-  RooDataSet* otherbkg_pp = new RooDataSet("otherbkg_pp", "otherbkg_pp", RooArgSet(jetptprobe, weight, mll, passprobe_cat, isb), Import(*tree_bkg), WeightVar(weight), Cut(mll_cut+" && passfail==1 && isb==0"));
-  RooDataSet* otherbkg_fp = new RooDataSet("otherbkg_fp", "otherbkg_fp", RooArgSet(jetptprobe, weight, mll, passprobe_cat, isb), Import(*tree_bkg), WeightVar(weight), Cut(mll_cut+" && passfail==0 && isb==0"));
+  RooDataSet* otherbkg_pp = new RooDataSet("otherbkg_pp", "otherbkg_pp", RooArgSet(jetptprobe, weight, weightSTUp, weightSTDown, mll, passprobe_cat, isb), Import(*tree_bkg), WeightVar(weight), Cut(mll_cut+" && passfail==1 && isb==0"));
+  RooDataSet* otherbkg_fp = new RooDataSet("otherbkg_fp", "otherbkg_fp", RooArgSet(jetptprobe, weight, weightSTUp, weightSTDown, mll, passprobe_cat, isb), Import(*tree_bkg), WeightVar(weight), Cut(mll_cut+" && passfail==0 && isb==0"));
   
-  RooDataSet* otherbkg_pp2 = new RooDataSet("otherbkg_pp2", "otherbkg_pp2", RooArgSet(jetptprobe, weight, mll, passprobe_cat, isb), Import(*tree_ttbar), WeightVar(weight), Cut(mll_cut+" && passfail==1 && isb==0"));
-  RooDataSet* otherbkg_fp2 = new RooDataSet("otherbkg_fp2", "otherbkg_fp2", RooArgSet(jetptprobe, weight, mll, passprobe_cat, isb), Import(*tree_ttbar), WeightVar(weight), Cut(mll_cut+" && passfail==0 && isb==0"));
+  RooDataSet* otherbkg_pp2 = new RooDataSet("otherbkg_pp2", "otherbkg_pp2", RooArgSet(jetptprobe, weight, weightSTUp, weightSTDown, mll, passprobe_cat, isb), Import(*tree_ttbar), WeightVar(weight), Cut(mll_cut+" && passfail==1 && isb==0"));
+  RooDataSet* otherbkg_fp2 = new RooDataSet("otherbkg_fp2", "otherbkg_fp2", RooArgSet(jetptprobe, weight, weightSTUp, weightSTDown, mll, passprobe_cat, isb), Import(*tree_ttbar), WeightVar(weight), Cut(mll_cut+" && passfail==0 && isb==0"));
   
   otherbkg_pp->append(*otherbkg_pp2);
   otherbkg_fp->append(*otherbkg_fp2);
@@ -197,11 +199,16 @@ int fit_mc_jetptprobe(int ntoys=0) {
   //d_model_tt.plotOn(cicia);
   //model_otherbkg.plotOn(cicia2, Slice(passprobe_cat,"pass"));
   //cicia2->Draw();  
-
+/*
   RooDataSet* comb_mc= (RooDataSet*)comb_mc_tt->Clone();
   comb_mc->append(*comb_mc_otherbkg);
- 
-  //RooDataSet combMC("combMC","combined MC", RooArgSet(jetptprobe,weight, passprobe_cat),Import(*comb_mc),WeightVar(weight)) ;
+*/
+  RooDataSet* ttbar_d = new RooDataSet("ttbar_d", "ttbar_d", RooArgSet(jetptprobe, weight, weightSTUp, weightSTDown, mll, passprobe_cat, isb), Import(*tree_ttbar), WeightVar(weight), Cut(mll_cut));
+  RooDataSet* otherbkg_d = new RooDataSet("otherbkg_d", "otherbkg_d", RooArgSet(jetptprobe, weight, weightSTUp, weightSTDown, mll, passprobe_cat, isb), Import(*tree_bkg), WeightVar(weight), Cut(mll_cut));
+
+  RooDataSet* comb_mc = (RooDataSet*) ttbar_d->Clone();
+  comb_mc->append(*otherbkg_d);
+
 
 
   // Create the simultaneous fit
@@ -349,11 +356,11 @@ int fit_mc_jetptprobe(int ntoys=0) {
     
   TLegend * leg = new TLegend(0.4,0.6,0.89,0.89);
   leg->AddEntry(frame1->findObject("h_ttbar_pp_Cut[passfail==passfail::fail]"), "MC t#bar{t}+Other backgrounds", "lp");
-  leg->AddEntry(frame1->findObject("h_ttbar_fp"), "MC t#bar{t}", "lp");
-  leg->AddEntry(frame1->findObject("h_otherbkg_fp"), "MC Other backgrounds", "lp");
+  leg->AddEntry(frame1->findObject("h_ttbar_fp"), "MC b-jet", "lp");
+  leg->AddEntry(frame1->findObject("h_otherbkg_fp"), "MC non-b-jets", "lp");
   leg->AddEntry(frame1->findObject("model_fp_Norm[jetptprobe]"), "total fit", "l");
-  leg->AddEntry(frame1->findObject("model_fp_Norm[jetptprobe]_Comp[pdf_ttbar_fp]"), "t#bar{t} fit", "l");
-  leg->AddEntry(frame1->findObject("model_fp_Norm[jetptprobe]_Comp[pdf_otherbkg_fp]"), "Other background fit", "l");   
+  leg->AddEntry(frame1->findObject("model_fp_Norm[jetptprobe]_Comp[pdf_ttbar_fp]"), "b-jet fit", "l");
+  leg->AddEntry(frame1->findObject("model_fp_Norm[jetptprobe]_Comp[pdf_otherbkg_fp]"), "non-b-jet fit", "l");   
   //leg->SetFillColor(0);
   //leg->SetFillStyle(4000);
   //leg->SetBorderSize(0);

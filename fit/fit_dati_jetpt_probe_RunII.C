@@ -69,8 +69,8 @@ int fit_data_jetptprobe() {
   TString mll_cut = "mll>0";
 
   //TFile* filein = new TFile(dir+"tandpOF_loose.root"); 
-  TFile* fileinData = new TFile(dir+"tandp_mediumT_looseP_7.root");
-  TFile* fileinMC = new TFile(dir+"tandp_mediumT_looseP_3.root");
+  TFile* fileinData = new TFile(dir+"tandp_mediumT_looseP_8.root");
+  TFile* fileinMC = new TFile(dir+"tandp_mediumT_looseP_8.root");
   TFile* fileout = new TFile("data_jetptprobe.root", "RECREATE");
   /*
   // Read in the ttbar MC
