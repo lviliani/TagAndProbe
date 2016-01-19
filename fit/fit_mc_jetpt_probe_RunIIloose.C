@@ -104,7 +104,6 @@ int fit_mc_jetptprobe(int ntoys=0) {
 
   RooRealVar jetpt2("jetpttag", "jetpttag", 15, 150);
   RooRealVar jetptprobe("jetptprobe", "jetptprobe", 15, 30);
-  //double binning_a[8] = {15, 18, 21, 24, 27, 30};
   double binning_a[4] = {15, 22, 30};
   RooBinning binning(2, binning_a);
   jetptprobe.setBinning(binning) ;
@@ -117,8 +116,8 @@ int fit_mc_jetptprobe(int ntoys=0) {
 
   RooRealVar efficiency_s("efficiency_s", "efficiency_s", 0, 1);
   RooRealVar efficiency_b("efficiency_b", "efficiency_b", 0, 1); 
-  RooRealVar s("s","signal yield",0,1000000);
-  RooRealVar b("b","background yield",0,500000);
+  RooRealVar s("s","signal yield",500,10000);
+  RooRealVar b("b","background yield",1000,10000);
   
   RooFormulaVar s_pass("s_pass","s*efficiency_s", RooArgList(s,efficiency_s));
   RooFormulaVar b_pass("b_pass","b*efficiency_b", RooArgList(b,efficiency_b));
@@ -224,7 +223,7 @@ int fit_mc_jetptprobe(int ntoys=0) {
   RooMinuit m2(chi2) ;
   //m2.migrad() ;
   //m2.hesse() ;
-  RooFitResult* fitresult = m2.fit("r");//m2.save() ;
+  RooFitResult* fitresult = total_fit.fitTo(hdata, Extended(), Save(true));//m2.fit("r");//m2.save() ;
   
   // Fit to MC templates
   //RooFitResult* fitresult = total_fit.fitTo(combMC,  RooFit::Save(true),  RooFit::PrintLevel(3), RooFit::Strategy(1), RooFit::NumCPU(6),  RooFit::Extended(kTRUE), RooFit::SumW2Error(true));
@@ -277,7 +276,7 @@ int fit_mc_jetptprobe(int ntoys=0) {
     cicia2->Draw();
     RooChi2Var chi2toy("chi2toy","chi2toy",total_fit,*htoy, Extended());
     RooMinuit m2toy(chi2toy) ;
-    RooFitResult* frSB = m2toy.fit("r");
+    RooFitResult* frSB = total_fit.fitTo(*htoy, Extended(), Save(true));//m2toy.fit("r");
 
     //const RooFitResult* frSB = mc.fitResult(i);
     if (frSB->status()==0 && frSB->covQual()==3) {

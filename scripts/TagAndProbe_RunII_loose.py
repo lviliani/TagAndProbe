@@ -10,7 +10,7 @@ loose = 0.605
 medium = 0.89
 tight = 0.97
 
-LumiW = 1.27
+LumiW = 2.120 
 
 outFile = TFile("tandp_mediumT_looseP_loose.root","recreate")
 
@@ -65,8 +65,9 @@ for key in trees.keys():
 
 Dir_mc = "../eos/cms/store/caf/user/lenzip/ww2016/21Oct_25ns_MC/mcwghtcount__MC__l2sel__bPogSF__hadd/"
 #Dir_mc = "../eos/user/x/xjanssen/HWW2015/21Oct_25ns_MC/mcwghtcount__MC__l2sel__hadd/"
-Dir_data = "../eosuser/user/x/xjanssen/HWW2015/21Oct_Run2015D_05Oct2015/l2sel__hadd/"
-Dir_data2 = "../eosuser/user/x/xjanssen/HWW2015/21Oct_Run2015D_PromptReco/l2sel__hadd/"
+Dir_data  = "../eosuser/user/x/xjanssen/HWW2015/21OctBis_Run2015D_PromptReco/l2sel__hadd/"
+Dir_data2 = "../eosuser/user/x/xjanssen/HWW2015/21OctBis_Run2015D_PromptReco_0716pb/l2sel__hadd/"
+Dir_data3 = "../eosuser/user/x/xjanssen/HWW2015/21OctBis_Run2015D_PromptReco_0851pb/l2sel__hadd/"
 
 
 # open the file
@@ -74,16 +75,21 @@ Top = TChain("latino")
 Top.Add(Dir_mc+"latino_TTTo2L2Nu.root")
 
 Data = TChain("latino")
-Data.Add(Dir_data2+"latino_Run2015D_PromptReco_25ns_MuonEG.root")
-Data.Add(Dir_data2+"latino_Run2015D_PromptReco_25ns_DoubleEG.root")
-Data.Add(Dir_data2+"latino_Run2015D_PromptReco_25ns_DoubleMuon.root")
-Data.Add(Dir_data2+"latino_Run2015D_PromptReco_25ns_SingleElectron.root")
-Data.Add(Dir_data2+"latino_Run2015D_PromptReco_25ns_SingleMuon.root")
-Data.Add(Dir_data+"latino_Run2015D_05Oct2015_DoubleEG.root")
-Data.Add(Dir_data+"latino_Run2015D_05Oct2015_DoubleMuon.root")
-Data.Add(Dir_data+"latino_Run2015D_05Oct2015_MuonEG.root")
-Data.Add(Dir_data+"latino_Run2015D_05Oct2015_SingleElectron.root")
-Data.Add(Dir_data+"latino_Run2015D_05Oct2015_SingleMuon.root")
+Data.Add(Dir_data3+"latino_Run2915D_PromptReco_MuonEG_0851pb.root")
+Data.Add(Dir_data3+"latino_Run2915D_PromptReco_SingleElectron_0851pb.root")
+Data.Add(Dir_data3+"latino_Run2915D_PromptReco_SingleMuon_0851pb.root")
+Data.Add(Dir_data3+"latino_Run2915D_PromptReco_DoubleEG_0851pb.root")
+Data.Add(Dir_data3+"latino_Run2915D_PromptReco_DoubleMuon_0851pb.root")
+Data.Add(Dir_data2+"latino_Run2915D_PromptReco_MuonEG_0716pb.root")
+Data.Add(Dir_data2+"latino_Run2915D_PromptReco_SingleElectron_0716pb.root")
+Data.Add(Dir_data2+"latino_Run2915D_PromptReco_SingleMuon_0716pb.root")
+Data.Add(Dir_data2+"latino_Run2915D_PromptReco_DoubleEG_0716pb.root")
+Data.Add(Dir_data2+"latino_Run2915D_PromptReco_DoubleMuon_0716pb.root")
+Data.Add(Dir_data +"latino_Run2015D_05Oct2015_MuonEG.root")
+Data.Add(Dir_data +"latino_Run2015D_05Oct2015_SingleElectron.root")
+Data.Add(Dir_data +"latino_Run2015D_05Oct2015_SingleMuon.root")
+Data.Add(Dir_data +"latino_Run2015D_05Oct2015_DoubleEG.root")
+Data.Add(Dir_data +"latino_Run2015D_05Oct2015_DoubleMuon.root")
 
 
 Bkg = TChain("latino")
@@ -133,9 +139,9 @@ for chain in chains:
   chain[0].SetBranchStatus("baseW",1)
   chain[0].SetBranchStatus("puW",1)
   chain[0].SetBranchStatus("effW",1)
-  chain[0].SetBranchStatus("bPogSF2Jet",1)
-  chain[0].SetBranchStatus("bPogSF2JetUp",1)
-  chain[0].SetBranchStatus("bPogSF2JetDown",1)
+  chain[0].SetBranchStatus("bPogSF",1)
+  chain[0].SetBranchStatus("bPogSFUp",1)
+  chain[0].SetBranchStatus("bPogSFDown",1)
   chain[0].SetBranchStatus("triggW",1)
   chain[0].SetBranchStatus("ppfMet",1)
   chain[0].SetBranchStatus("std_vector_jet_PartonFlavour*",1)
@@ -186,16 +192,16 @@ for chain in chains:
     if ( e.std_vector_jet_csvv2ivf[2]>medium or e.std_vector_jet_csvv2ivf[3]>medium ) : 
       continue
     if chain[1] == "Top":
-      weight[0] = e.baseW*e.puW*e.bPogSF2Jet*LumiW
-      weightUp[0] = e.baseW*e.puW*e.bPogSF2JetUp*LumiW
-      weightDown[0] = e.baseW*e.puW*e.bPogSF2JetDown*LumiW
+      weight[0] = e.baseW*e.puW*e.bPogSF*LumiW
+      weightUp[0] = e.baseW*e.puW*e.bPogSFUp*LumiW
+      weightDown[0] = e.baseW*e.puW*e.bPogSFDown*LumiW
       weightST[0]=weight[0]
       weightSTUp[0]=weight[0]
       weightSTDown[0]=weight[0]
     elif chain[1] == "Bkg":
-      weight[0] = e.baseW*e.puW*e.bPogSF2Jet*LumiW
-      weightUp[0] = e.baseW*e.puW*e.bPogSF2JetUp*LumiW
-      weightDown[0] = e.baseW*e.puW*e.bPogSF2JetDown*LumiW
+      weight[0] = e.baseW*e.puW*e.bPogSF*LumiW
+      weightUp[0] = e.baseW*e.puW*e.bPogSFUp*LumiW
+      weightDown[0] = e.baseW*e.puW*e.bPogSFDown*LumiW
       weightST[0]=weight[0]
       weightSTUp[0]=weight[0]
       weightSTDown[0]=weight[0]
