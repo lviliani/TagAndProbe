@@ -67,12 +67,13 @@ int fit_mc_jetptprobe(int ntoys=0) {
   // Read in the data.  
 
   TString dir = "../scripts/";
-  TString mll_cut = "jetptprobe < 30";
+  //TString mll_cut = "jetptprobe > 15 && jetptprobe < 30 && jetpttag > 30";
+  TString mll_cut = "jetptprobe > 15 && jetptprobe < 30 && jetpttag > 15 && btagtag>0.605";
 
   //TFile* filein = new TFile(dir+"tandpOF_loose.root"); 
-  TFile* fileinData = new TFile(dir+"tandp_mediumT_looseP_loose.root");
-  TFile* fileinMC = new TFile(dir+"tandp_mediumT_looseP_loose.root");
-  TFile* fileout = new TFile("mc_jetptprobe_0jet.root", "RECREATE");
+  TFile* fileinData = new TFile(dir+"tandp_mediumT_looseP_loose_test3.root");
+  TFile* fileinMC = new TFile(dir+"tandp_mediumT_looseP_loose_test3.root");
+  TFile* fileout = new TFile("mc_jetptprobe_below30.root", "RECREATE");
   /*
   // Read in the ttbar MC
   TFile* ttbarFile_pp = new TFile(dir+"ttbar_pp.root");
@@ -104,8 +105,13 @@ int fit_mc_jetptprobe(int ntoys=0) {
 
   RooRealVar jetpt2("jetpttag", "jetpttag", 15, 150);
   RooRealVar jetptprobe("jetptprobe", "jetptprobe", 15, 30);
+  RooRealVar btagtag("btagtag", "btagtag", 0., 1.);
+  RooRealVar dataset("dataset", "dataset", 0., 10000000.);
+  //double binning_a[9] = {30, 40, 45, 50, 55, 60, 70, 100, 200};
   double binning_a[4] = {15, 20, 25, 30};
   RooBinning binning(3, binning_a);
+  //double binning_a[4] = {15, 20, 25, 30};
+  //RooBinning binning(3, binning_a);
   jetptprobe.setBinning(binning) ;
   RooRealVar weight("weight", "weight", -1000, 1000);  
   RooRealVar weightSTUp("weightSTUp", "weightSTUp", -1000, 1000);  
@@ -116,8 +122,8 @@ int fit_mc_jetptprobe(int ntoys=0) {
 
   RooRealVar efficiency_s("efficiency_s", "efficiency_s", 0, 1);
   RooRealVar efficiency_b("efficiency_b", "efficiency_b", 0, 1); 
-  RooRealVar s("s","signal yield",500,10000);
-  RooRealVar b("b","background yield",1000,10000);
+  RooRealVar s("s","signal yield",500,10000000);
+  RooRealVar b("b","background yield",1000,10000000);
   
   RooFormulaVar s_pass("s_pass","s*efficiency_s", RooArgList(s,efficiency_s));
   RooFormulaVar b_pass("b_pass","b*efficiency_b", RooArgList(b,efficiency_b));
@@ -127,21 +133,21 @@ int fit_mc_jetptprobe(int ntoys=0) {
 
   // Import TTbar and Bkg datasets
   //signal: the probe is a b
-  RooDataSet* ttbar_pp = new RooDataSet("ttbar_pp", "ttbar_pp", RooArgSet(jetpt2, jetptprobe, weight, weightSTUp, weightSTDown, mll, passprobe_cat, isb), Import(*tree_ttbar), WeightVar(weight), Cut(mll_cut+" && passfail==1 && isb==1"));
-  RooDataSet* ttbar_fp = new RooDataSet("ttbar_fp", "ttbar_fp", RooArgSet(jetpt2, jetptprobe, weight, weightSTUp, weightSTDown, mll, passprobe_cat, isb), Import(*tree_ttbar), WeightVar(weight), Cut(mll_cut+" && passfail==0 && isb==1"));
+  RooDataSet* ttbar_pp = new RooDataSet("ttbar_pp", "ttbar_pp", RooArgSet(jetpt2, jetptprobe, weight, weightSTUp, weightSTDown, mll, passprobe_cat, isb, btagtag), Import(*tree_ttbar), WeightVar(weight), Cut(mll_cut+" && passfail==1 && isb==1"));
+  RooDataSet* ttbar_fp = new RooDataSet("ttbar_fp", "ttbar_fp", RooArgSet(jetpt2, jetptprobe, weight, weightSTUp, weightSTDown, mll, passprobe_cat, isb, btagtag), Import(*tree_ttbar), WeightVar(weight), Cut(mll_cut+" && passfail==0 && isb==1"));
 
-  RooDataSet* ttbar_pp2 = new RooDataSet("ttbar_pp2", "ttbar_pp", RooArgSet(jetpt2, jetptprobe, weight, weightSTUp, weightSTDown, mll, passprobe_cat, isb), Import(*tree_bkg), WeightVar(weight), Cut(mll_cut+" && passfail==1 && isb==1"));
-  RooDataSet* ttbar_fp2 = new RooDataSet("ttbar_fp2", "ttbar_fp", RooArgSet(jetpt2, jetptprobe, weight, weightSTUp, weightSTDown, mll, passprobe_cat, isb), Import(*tree_bkg), WeightVar(weight), Cut(mll_cut+" && passfail==0 && isb==1"));
+  RooDataSet* ttbar_pp2 = new RooDataSet("ttbar_pp2", "ttbar_pp", RooArgSet(jetpt2, jetptprobe, weight, weightSTUp, weightSTDown, mll, passprobe_cat, isb, btagtag), Import(*tree_bkg), WeightVar(weight), Cut(mll_cut+" && passfail==1 && isb==1"));
+  RooDataSet* ttbar_fp2 = new RooDataSet("ttbar_fp2", "ttbar_fp", RooArgSet(jetpt2, jetptprobe, weight, weightSTUp, weightSTDown, mll, passprobe_cat, isb, btagtag), Import(*tree_bkg), WeightVar(weight), Cut(mll_cut+" && passfail==0 && isb==1"));
 
   ttbar_pp->append(*ttbar_pp2);
   ttbar_fp->append(*ttbar_fp2);
   
   //background: the probe is not a b
-  RooDataSet* otherbkg_pp = new RooDataSet("otherbkg_pp", "otherbkg_pp", RooArgSet(jetpt2, jetptprobe, weight, weightSTUp, weightSTDown, mll, passprobe_cat, isb), Import(*tree_bkg), WeightVar(weight), Cut(mll_cut+" && passfail==1 && isb==0"));
-  RooDataSet* otherbkg_fp = new RooDataSet("otherbkg_fp", "otherbkg_fp", RooArgSet(jetpt2, jetptprobe, weight, weightSTUp, weightSTDown, mll, passprobe_cat, isb), Import(*tree_bkg), WeightVar(weight), Cut(mll_cut+" && passfail==0 && isb==0"));
+  RooDataSet* otherbkg_pp = new RooDataSet("otherbkg_pp", "otherbkg_pp", RooArgSet(jetpt2, jetptprobe, weight, weightSTUp, weightSTDown, mll, passprobe_cat, isb, btagtag), Import(*tree_bkg), WeightVar(weight), Cut(mll_cut+" && passfail==1 && isb==0"));
+  RooDataSet* otherbkg_fp = new RooDataSet("otherbkg_fp", "otherbkg_fp", RooArgSet(jetpt2, jetptprobe, weight, weightSTUp, weightSTDown, mll, passprobe_cat, isb, btagtag), Import(*tree_bkg), WeightVar(weight), Cut(mll_cut+" && passfail==0 && isb==0"));
   
-  RooDataSet* otherbkg_pp2 = new RooDataSet("otherbkg_pp2", "otherbkg_pp2", RooArgSet(jetpt2, jetptprobe, weight, weightSTUp, weightSTDown, mll, passprobe_cat, isb), Import(*tree_ttbar), WeightVar(weight), Cut(mll_cut+" && passfail==1 && isb==0"));
-  RooDataSet* otherbkg_fp2 = new RooDataSet("otherbkg_fp2", "otherbkg_fp2", RooArgSet(jetpt2, jetptprobe, weight, weightSTUp, weightSTDown, mll, passprobe_cat, isb), Import(*tree_ttbar), WeightVar(weight), Cut(mll_cut+" && passfail==0 && isb==0"));
+  RooDataSet* otherbkg_pp2 = new RooDataSet("otherbkg_pp2", "otherbkg_pp2", RooArgSet(jetpt2, jetptprobe, weight, weightSTUp, weightSTDown, mll, passprobe_cat, isb, btagtag), Import(*tree_ttbar), WeightVar(weight), Cut(mll_cut+" && passfail==1 && isb==0"));
+  RooDataSet* otherbkg_fp2 = new RooDataSet("otherbkg_fp2", "otherbkg_fp2", RooArgSet(jetpt2, jetptprobe, weight, weightSTUp, weightSTDown, mll, passprobe_cat, isb, btagtag), Import(*tree_ttbar), WeightVar(weight), Cut(mll_cut+" && passfail==0 && isb==0"));
   
   otherbkg_pp->append(*otherbkg_pp2);
   otherbkg_fp->append(*otherbkg_fp2);
@@ -203,8 +209,17 @@ int fit_mc_jetptprobe(int ntoys=0) {
   RooDataSet* comb_mc= (RooDataSet*)comb_mc_tt->Clone();
   comb_mc->append(*comb_mc_otherbkg);
 */
-  RooDataSet* ttbar_d = new RooDataSet("ttbar_d", "ttbar_d", RooArgSet(jetpt2, jetptprobe, weight, weightSTUp, weightSTDown, mll, passprobe_cat, isb), Import(*tree_ttbar), WeightVar(weight), Cut(mll_cut));
-  RooDataSet* otherbkg_d = new RooDataSet("otherbkg_d", "otherbkg_d", RooArgSet(jetpt2, jetptprobe, weight, weightSTUp, weightSTDown, mll, passprobe_cat, isb), Import(*tree_bkg), WeightVar(weight), Cut(mll_cut));
+  RooArgSet variables(jetpt2, jetptprobe, weight, /*weightSTUp, weightSTDown,*/ mll, passprobe_cat, isb, btagtag, dataset);
+  RooFormulaVar new_weight("weightNew", "weightNew", "weight*(1-0.1*(dataset==3))", RooArgList(weight, dataset));
+  //RooFormulaVar new_weight("weightNew", "weightNew", "weight*(1-0.17*((dataset>=12 && dataset<=16)||dataset==22))", RooArgList(weight, dataset));
+  RooDataSet* ttbar_d1 = new RooDataSet("ttbar_d1", "ttbar_d1", variables, Import(*tree_ttbar), /*WeightVar(weight),*/ Cut(mll_cut));
+  RooRealVar* wVar1 = (RooRealVar*) ttbar_d1->addColumn(new_weight);
+  RooDataSet* ttbar_d = new RooDataSet("ttbar_d", "ttbar_d", RooArgSet(variables, *wVar1), Import(*ttbar_d1), WeightVar(*wVar1));
+
+  RooDataSet* otherbkg_d1 = new RooDataSet("otherbkg_d1", "otherbkg_d1", variables, Import(*tree_bkg), /*WeightVar(weight),*/ Cut(mll_cut));
+  RooRealVar* wVar2 = (RooRealVar*) otherbkg_d1->addColumn(new_weight);
+  RooDataSet* otherbkg_d = new RooDataSet("otherbkg_d", "otherbkg_d", RooArgSet(variables, *wVar2), Import(*otherbkg_d1),  WeightVar(*wVar2));
+
 
   RooDataSet* comb_mc = (RooDataSet*) ttbar_d->Clone();
   comb_mc->append(*otherbkg_d);
