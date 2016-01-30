@@ -12,7 +12,7 @@ tight = 0.97
 
 LumiW = 2.120 
 
-outFile = TFile("tandp_mediumT_looseP_loose_test3.root","recreate")
+outFile = TFile("tandp_mediumT_looseP_loose_ttAndZ.root","recreate")
 
 treeData = TTree("Data","Tree with data_pp and data_fp")
 treeTTbar = TTree("TTbar","Tree with ttbar_pp and ttbar_fp")
@@ -27,9 +27,9 @@ passfail  = n.zeros(1, dtype=int)
 weight = n.zeros(1, dtype=float)
 weightUp = n.zeros(1, dtype=float)
 weightDown = n.zeros(1, dtype=float)
-weightST = n.zeros(1, dtype=float)
-weightSTUp = n.zeros(1, dtype=float)
-weightSTDown = n.zeros(1, dtype=float)
+#weightST = n.zeros(1, dtype=float)
+#weightSTUp = n.zeros(1, dtype=float)
+#weightSTDown = n.zeros(1, dtype=float)
 btagprobe = n.zeros(1, dtype=float)
 btagtag = n.zeros(1, dtype=float)
 mll = n.zeros(1, dtype=float)
@@ -51,9 +51,9 @@ for key in trees.keys():
   trees[key].Branch('weight', weight, 'weight/D')
   trees[key].Branch('weightUp', weightUp, 'weightUp/D')
   trees[key].Branch('weightDown', weightDown, 'weightDown/D')
-  trees[key].Branch('weightST', weightST, 'weightST/D')
-  trees[key].Branch('weightSTUp', weightSTUp, 'weightSTUp/D')
-  trees[key].Branch('weightSTDown', weightSTDown, 'weightSTDown/D')
+  #trees[key].Branch('weightST', weightST, 'weightST/D')
+  #trees[key].Branch('weightSTUp', weightSTUp, 'weightSTUp/D')
+  #trees[key].Branch('weightSTDown', weightSTDown, 'weightSTDown/D')
   trees[key].Branch('btagprobe', btagprobe, 'btagprobe/D')
   trees[key].Branch('btagtag', btagtag, 'btagtad/D')
   trees[key].Branch('mll', mll, 'mll/D')
@@ -65,7 +65,7 @@ for key in trees.keys():
   trees[key].Branch('pfType1Met', pfType1Met, 'pfType1Met/D')
 
 
-Dir_mc = "../eos/cms/store/user/lviliani/ww2016/bPogSF_fix/21Oct_25ns_MC/mcwghtcount__MC__l2selFix__bPogSF__hadd/"
+Dir_mc = "../eos/cms/store/caf/user/lenzip/ww2016/21Oct_25ns_MC/mcwghtcount__MC__l2selFix__bPogSF__hadd/"
 #Dir_mc = "../eos/user/x/xjanssen/HWW2015/21Oct_25ns_MC/mcwghtcount__MC__l2sel__hadd/"
 Dir_data  = "../eosuser/user/x/xjanssen/HWW2015/21OctBis_Run2015D_05Oct2015/l2sel__hadd/"
 Dir_data2 = "../eosuser/user/x/xjanssen/HWW2015/21OctBis_Run2015D_PromptReco_0716pb/l2sel__hadd/"
@@ -204,9 +204,9 @@ for chain in chains:
       weight[0] = e.baseW*e.puW*e.bPogSF*LumiW
       weightUp[0] = e.baseW*e.puW*e.bPogSFUp*LumiW
       weightDown[0] = e.baseW*e.puW*e.bPogSFDown*LumiW
-      weightST[0]=weight[0]
-      weightSTUp[0]=weight[0]
-      weightSTDown[0]=weight[0]
+      #weightST[0]=weight[0]
+      #weightSTUp[0]=weight[0]
+      #weightSTDown[0]=weight[0]
     elif chain[1] == "Bkg":
       weight[0] = e.baseW*e.puW*e.bPogSF*LumiW
       weightUp[0] = e.baseW*e.puW*e.bPogSFUp*LumiW
@@ -215,14 +215,14 @@ for chain in chains:
         weight[0]     = weight[0]*    e.GEN_weight_SM/abs(e.GEN_weight_SM)
         weightUp[0]   = weightUp[0]*  e.GEN_weight_SM/abs(e.GEN_weight_SM)
         weightDown[0] = weightDown[0]*e.GEN_weight_SM/abs(e.GEN_weight_SM)
-      weightST[0]=weight[0]
-      weightSTUp[0]=weight[0]
-      weightSTDown[0]=weight[0]
+      #weightST[0]=weight[0]
+      #weightSTUp[0]=weight[0]
+      #weightSTDown[0]=weight[0]
       #single top variations
-      if ( e.dataset >=12 and e.dataset <=16 )  or e.dataset == 22:
-        weightSTUp[0]=weight[0]*1.2
-        weightSTDown[0]=weight[0]*0.8
-    elif chain[1] == "Data":
+      #if ( e.dataset >=12 and e.dataset <=16 )  or e.dataset == 22:
+      #  weightSTUp[0]=weight[0]*1.2
+      #  weightSTDown[0]=weight[0]*0.8
+    else:
       weight[0] = e.trigger 
    
     dataset[0] =  e.dataset    

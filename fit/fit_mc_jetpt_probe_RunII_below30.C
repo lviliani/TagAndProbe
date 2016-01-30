@@ -210,7 +210,7 @@ int fit_mc_jetptprobe(int ntoys=0) {
   comb_mc->append(*comb_mc_otherbkg);
 */
   RooArgSet variables(jetpt2, jetptprobe, weight, /*weightSTUp, weightSTDown,*/ mll, passprobe_cat, isb, btagtag, dataset);
-  RooFormulaVar new_weight("weightNew", "weightNew", "weight*(1-0.1*(dataset==3))", RooArgList(weight, dataset));
+  RooFormulaVar new_weight("weightNew", "weightNew", "weight*(1-0.*(dataset==3))", RooArgList(weight, dataset));
   //RooFormulaVar new_weight("weightNew", "weightNew", "weight*(1-0.17*((dataset>=12 && dataset<=16)||dataset==22))", RooArgList(weight, dataset));
   RooDataSet* ttbar_d1 = new RooDataSet("ttbar_d1", "ttbar_d1", variables, Import(*tree_ttbar), /*WeightVar(weight),*/ Cut(mll_cut));
   RooRealVar* wVar1 = (RooRealVar*) ttbar_d1->addColumn(new_weight);
