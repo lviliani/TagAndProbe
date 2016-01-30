@@ -41,7 +41,7 @@ using namespace RooFit;
 
 //-------------------------------------------------------------------------
 
-int fit_mc_jetptprobe(int isMC=1, int ntoys=0) {
+int fit_mc_jetptprobe(int isMC=1, int ntoys=0, double scaleZ=0, double scaleST=0) {
 
   gROOT->SetStyle("Plain");
   gROOT->ForceStyle();
@@ -55,11 +55,11 @@ int fit_mc_jetptprobe(int isMC=1, int ntoys=0) {
   TString dir = "../scripts/";
   TString mll_cut = "jetptprobe > 30 && jetpttag > 20 && btagtag>0.605";
 
-  TFile* fileinData = new TFile(dir+"tandp_mediumT_looseP_loose_test3.root");
+  //TFile* fileinData = new TFile(dir+"tandp_mediumT_looseP_loose_test3.root");
   TFile* fileinMC = new TFile(dir+"tandp_mediumT_looseP_loose_test3.root");
   TFile* fileout = 0;
   if (isMC == 1)
-    fileout = new TFile("mc_jetptAndMll_probe_RunII_above30.root", "RECREATE");
+    fileout = new TFile(Form("mc_jetptAndMll_probe_RunII_ntoys_%d_Z%f_ST%f.root", ntoys, scaleZ, scaleST), "RECREATE");
   else
     fileout = new TFile("data_jetptAndMll_probe_RunII_above30.root", "RECREATE");
 
@@ -135,7 +135,7 @@ int fit_mc_jetptprobe(int isMC=1, int ntoys=0) {
   Double_t entries_l_pp = l_pp->sumEntries();
   Double_t entries_l_fp = l_fp->sumEntries();
 
-  Double_t tot_events = entries_b_pp+entries_b_fp+entries_l_pp+entries_l_fp; 
+  //Double_t tot_events = entries_b_pp+entries_b_fp+entries_l_pp+entries_l_fp; 
 
   
   //histd to build pdfs for:
@@ -191,7 +191,8 @@ int fit_mc_jetptprobe(int isMC=1, int ntoys=0) {
   // b_d and l_d below differ from comb_mc_b and comb_mc_l only for the weight. Some Gymnastic is needed to ass the new weight due
   // deprecation of setWeightVar
   RooArgSet variables(btagtag, dataset, jetpt2, jetptprobe, weight, mll, passprobe_cat);
-  RooFormulaVar new_weight("weightNew", "weightNew", "weight*(1+0.0*(dataset==3))", RooArgList(weight, dataset));
+  cout << Form("weight*(1+%f*(dataset==3)*(1+%f((dataset>=12 && dataset<=16)||dataset==22)))", scaleZ, scaleST) << endl;
+  RooFormulaVar new_weight("weightNew", "weightNew", Form("weight*(1+%f*(dataset==3)*(1+%f*((dataset>=12 && dataset<=16)||dataset==22)))", scaleZ, scaleST), RooArgList(weight, dataset));
   //RooFormulaVar new_weight("weightNew", "weightNew", "weight*(1-0.17*((dataset>=12 && dataset<=16)||dataset==22))", RooArgList(weight, dataset));
   RooDataSet* b_d1 = new RooDataSet("b_d1", "ttbar_d1", variables, Import(*tree_ttbar), Cut(mll_cut));
   RooRealVar* wVar1 = (RooRealVar*) b_d1->addColumn(new_weight);
@@ -221,7 +222,7 @@ int fit_mc_jetptprobe(int isMC=1, int ntoys=0) {
   //m2.migrad() ;
   //m2.hesse() ;
   RooFitResult* fitresult = total_fit.fitTo(*hdata, Extended(), Save(true));//m2.fit("r");//m2.save() ;
-  
+   
   // Fit to MC templates
   //RooFitResult* fitresult = total_fit.fitTo(combMC,  RooFit::Save(true),  RooFit::PrintLevel(3), RooFit::Strategy(1), RooFit::NumCPU(6),  RooFit::Extended(kTRUE), RooFit::SumW2Error(true));
 
@@ -286,6 +287,7 @@ int fit_mc_jetptprobe(int isMC=1, int ntoys=0) {
       h_effs->Fill(effs_res->getValV());
       h_effb->Fill(effb_res->getValV());
     }
+    frSB->Write();
     if (i != ntoys-1){
       delete toy_l;
       delete toy_b;
@@ -330,7 +332,7 @@ int fit_mc_jetptprobe(int isMC=1, int ntoys=0) {
   RooPlot* frame = jetptprobe.frame(Title("tag-pass-probe"),Binning(binning));
   RooPlot* frame1 = jetptprobe.frame(Title("tag-fail-probe"),Binning(binning));
 
-  RooAbsPdf* fitclone = (RooAbsPdf*) total_fit.Clone();
+  //RooAbsPdf* fitclone = (RooAbsPdf*) total_fit.Clone();
 
   comb_mc->plotOn(frame,Cut("passfail==passfail::pass"), Binning(binning)) ;
   total_fit.paramOn(frame,RooArgSet(sTT,bTT,sZ,bZ,efficiency_s,efficiency_b));
@@ -389,7 +391,7 @@ int fit_mc_jetptprobe(int isMC=1, int ntoys=0) {
   c->cd(4) ; gPad->SetLeftMargin(0.15) ; frame4->GetYaxis()->SetTitleOffset(1.4) ; frame4->Draw(); 
   fileout->cd();
   c->Write();
-
+  fitresult->Write();
   cout << "################################################" << endl;
   cout << "True Efficiency_s = " << effs_true->getValV() << " +- " << effs_true->getError() << endl;
   cout << "True Efficiency_b = " << effb_true->getValV() << " +- " << effb_true->getError() << endl;
