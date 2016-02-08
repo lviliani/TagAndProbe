@@ -65,5 +65,7 @@ extractFit(STup)
 extractFit(STdown)
 extractFit(data)
 
+print "parameter & MC & Data & SF \\"
 for var in fitpars:
-  print var, data[var], "+/-", error(var), " MC:", asimov[var], "  SF:", data[var]/asimov[var], "+/-", error(var)/asimov[var] 
+  print var, " & ", asimov[var], " & ", data[var], "$\pm$", error(var), " & ", data[var]/asimov[var], "$\pm$", error(var)/asimov[var], "\\"
+  #print var, data[var], "+/-", error(var), " MC:", asimov[var], "  SF:", data[var]/asimov[var], "+/-", error(var)/asimov[var] 
