@@ -57,7 +57,7 @@ int fit_mc_jetptprobe(int isMC=1, int ntoys=0, double scaleZ=0, double scaleST=0
   TString mll_cut = "jetptprobe > 30 && jetpttag > 20 && btagtag>0.605";
 
   //TFile* fileinData = new TFile(dir+"tandp_mediumT_looseP_loose_test3.root");
-  TFile* fileinMC = new TFile(dir+"tandp_mediumT_looseP_loose_test3.root");
+  TFile* fileinMC = new TFile(dir+"tandp_mediumT_looseP_loose_ttAndZ_newweights.root");
   TFile* fileout = 0;
   if (isMC == 1)
     fileout = new TFile(Form("mc_jetptAndMll_probe_RunII_ntoys_%d_Z%f_ST%f.root", ntoys, scaleZ, scaleST), "RECREATE");
@@ -505,7 +505,7 @@ int fit_mc_jetptprobe(int isMC=1, int ntoys=0, double scaleZ=0, double scaleST=0
     leg->AddEntry(frame1->findObject("h_d_b_fpTT"), "b-jet from TT", "lp");
     leg->AddEntry(frame1->findObject("h_d_l_fpTT"), "non-b-jet from TT", "lp");
     leg->AddEntry(frame1->findObject("h_d_b_fpZ"), "b-jet from Z", "lp");
-    leg->AddEntry(frame1->findObject("h_d_l_fpZ"), "non-b-jet from TT", "lp");
+    leg->AddEntry(frame1->findObject("h_d_l_fpZ"), "non-b-jet from Z", "lp");
     
   }  
   leg->AddEntry(frame1->findObject("pdf_b_fpTT_E_Int[mll]_Norm[jetptprobe,mll]"), "fit b-jet from TT", "l");

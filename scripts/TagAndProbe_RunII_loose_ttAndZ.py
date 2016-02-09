@@ -12,7 +12,7 @@ tight = 0.97
 
 LumiW = 2.120 
 
-outFile = TFile("tandp_mediumT_looseP_loose_ttAndZ.root","recreate")
+outFile = TFile("tandp_mediumT_looseP_loose_ttAndZ_newweights.root","recreate")
 
 treeData = TTree("Data","Tree with data_pp and data_fp")
 treeTTbar = TTree("TTbar","Tree with ttbar_pp and ttbar_fp")
@@ -65,7 +65,7 @@ for key in trees.keys():
   trees[key].Branch('pfType1Met', pfType1Met, 'pfType1Met/D')
 
 
-Dir_mc = "../eos/cms/store/caf/user/lenzip/ww2016/21Oct_25ns_MC/mcwghtcount__MC__l2selFix__bPogSF__hadd/"
+Dir_mc = "../eosuser/user/x/xjanssen/HWW2015/21Oct_25ns_MC/mcwghtcount__MC__l2selFix__hadd__bSFL2Eff/"
 #Dir_mc = "../eos/user/x/xjanssen/HWW2015/21Oct_25ns_MC/mcwghtcount__MC__l2sel__hadd/"
 Dir_data  = "../eosuser/user/x/xjanssen/HWW2015/21OctBis_Run2015D_05Oct2015/l2sel__hadd/"
 Dir_data2 = "../eosuser/user/x/xjanssen/HWW2015/21OctBis_Run2015D_PromptReco_0716pb/l2sel__hadd/"
@@ -123,35 +123,35 @@ ntopentries=Top.GetEntries()
 ndataentries=Data.GetEntries()
 nbkgentries=Bkg.GetEntries()
 
-for chain in chains:
-  print chain[1]
-  chain[0].SetBranchStatus("*",0)
-  chain[0].SetBranchStatus("std_vector_lepton_flavour*",1)
-  chain[0].SetBranchStatus("trigger",1)
-  chain[0].SetBranchStatus("mll",1)
-  chain[0].SetBranchStatus("mth",1)
-  chain[0].SetBranchStatus("ptll",1)
-  chain[0].SetBranchStatus("pfType1Met",1)
-  chain[0].SetBranchStatus("dataset",1)
-  chain[0].SetBranchStatus("std_vector_lepton_pt*",1)
-  chain[0].SetBranchStatus("std_vector_lepton_ch*",1)
-  chain[0].SetBranchStatus("njet",1)
-  chain[0].SetBranchStatus("std_vector_jet_pt*",1)
-  chain[0].SetBranchStatus("std_vector_jet_eta*",1)
-  chain[0].SetBranchStatus("std_vector_jet_phi*",1)
-  chain[0].SetBranchStatus("std_vector_jet_csvv2ivf*",1)
-  chain[0].SetBranchStatus("baseW",1)
-  chain[0].SetBranchStatus("puW",1)
-  chain[0].SetBranchStatus("effW",1)
-  chain[0].SetBranchStatus("bPogSF",1)
-  chain[0].SetBranchStatus("bPogSFUp",1)
-  chain[0].SetBranchStatus("bPogSFDown",1)
-  chain[0].SetBranchStatus("triggW",1)
-  chain[0].SetBranchStatus("ppfMet",1)
-  chain[0].SetBranchStatus("std_vector_jet_PartonFlavour*",1)
-  chain[0].SetBranchStatus("std_vector_jet_HadronFlavour*",1)
-  chain[0].SetBranchStatus("std_vector_jetGen*",1)
-  chain[0].SetBranchStatus("GEN_weight_SM",1)
+#for chain in chains:
+#  print chain[1]
+#  chain[0].SetBranchStatus("*",0)
+#  chain[0].SetBranchStatus("std_vector_lepton_flavour*",1)
+#  chain[0].SetBranchStatus("trigger",1)
+#  chain[0].SetBranchStatus("mll",1)
+#  chain[0].SetBranchStatus("mth",1)
+#  chain[0].SetBranchStatus("ptll",1)
+#  chain[0].SetBranchStatus("pfType1Met",1)
+#  chain[0].SetBranchStatus("dataset",1)
+#  chain[0].SetBranchStatus("std_vector_lepton_pt*",1)
+#  chain[0].SetBranchStatus("std_vector_lepton_ch*",1)
+#  chain[0].SetBranchStatus("njet",1)
+#  chain[0].SetBranchStatus("std_vector_jet_pt*",1)
+#  chain[0].SetBranchStatus("std_vector_jet_eta*",1)
+#  chain[0].SetBranchStatus("std_vector_jet_phi*",1)
+#  chain[0].SetBranchStatus("std_vector_jet_csvv2ivf*",1)
+#  chain[0].SetBranchStatus("baseW",1)
+#  chain[0].SetBranchStatus("puW",1)
+#  chain[0].SetBranchStatus("effW",1)
+#  chain[0].SetBranchStatus("bPogSF",1)
+#  chain[0].SetBranchStatus("bPogSFUp",1)
+#  chain[0].SetBranchStatus("bPogSFDown",1)
+#  chain[0].SetBranchStatus("triggW",1)
+#  chain[0].SetBranchStatus("ppfMet",1)
+#  chain[0].SetBranchStatus("std_vector_jet_PartonFlavour*",1)
+#  chain[0].SetBranchStatus("std_vector_jet_HadronFlavour*",1)
+#  chain[0].SetBranchStatus("std_vector_jetGen*",1)
+#  chain[0].SetBranchStatus("GEN_weight_SM",1)
 
 def deltaPhi(jetphi, bphi):
   deltaPhi=fabs(jetphi - bphi)
@@ -201,16 +201,16 @@ for chain in chains:
     if ( e.std_vector_jet_csvv2ivf[2]>medium or e.std_vector_jet_csvv2ivf[3]>medium ) : 
       continue
     if chain[1] == "Top":
-      weight[0] = e.baseW*e.puW*e.bPogSF*LumiW
-      weightUp[0] = e.baseW*e.puW*e.bPogSFUp*LumiW
-      weightDown[0] = e.baseW*e.puW*e.bPogSFDown*LumiW
+      weight[0] = e.puW*e.baseW*e.bPogSF*e.effTrigW*e.std_vector_lepton_idisoW[0]*e.std_vector_lepton_idisoW[1]*LumiW #e.baseW*e.puW*e.bPogSF*LumiW
+      weightUp[0] = e.puW*e.baseW*e.bPogSFUp*e.effTrigW*e.std_vector_lepton_idisoW[0]*e.std_vector_lepton_idisoW[1]*LumiW #e.baseW*e.puW*e.bPogSFUp*LumiW
+      weightDown[0] = e.puW*e.baseW*e.bPogSFDown*e.effTrigW*e.std_vector_lepton_idisoW[0]*e.std_vector_lepton_idisoW[1]*LumiW #e.baseW*e.puW*e.bPogSFDown*LumiW
       #weightST[0]=weight[0]
       #weightSTUp[0]=weight[0]
       #weightSTDown[0]=weight[0]
     elif chain[1] == "Bkg":
-      weight[0] = e.baseW*e.puW*e.bPogSF*LumiW
-      weightUp[0] = e.baseW*e.puW*e.bPogSFUp*LumiW
-      weightDown[0] = e.baseW*e.puW*e.bPogSFDown*LumiW
+      weight[0] = e.puW*e.baseW*e.bPogSF*e.effTrigW*e.std_vector_lepton_idisoW[0]*e.std_vector_lepton_idisoW[1]*LumiW #e.baseW*e.puW*e.bPogSF*LumiW
+      weightUp[0] = e.puW*e.baseW*e.bPogSFUp*e.effTrigW*e.std_vector_lepton_idisoW[0]*e.std_vector_lepton_idisoW[1]*LumiW #e.baseW*e.puW*e.bPogSFUp*LumiW
+      weightDown[0] = e.puW*e.baseW*e.bPogSFDown*e.effTrigW*e.std_vector_lepton_idisoW[0]*e.std_vector_lepton_idisoW[1]*LumiW #e.baseW*e.puW*e.bPogSFDown*LumiW
       if e.dataset == 3 or e.dataset == 2:
         weight[0]     = weight[0]*    e.GEN_weight_SM/abs(e.GEN_weight_SM)
         weightUp[0]   = weightUp[0]*  e.GEN_weight_SM/abs(e.GEN_weight_SM)
